@@ -1,1 +1,2 @@
-
+I had already been thinking of what project to work on as my capstone project. I decided to build a library app. I looked for components that would help make my project a success. A key component being a books database that I can use for my project. After reading through a number of open source books API, I decided to use Google Books API as the source of books for my library app.
+Also, I thought of features I could include in my app. For instance, favorite books, search bar to search for books, nice display of books, and more feature that will come into my mind later.
