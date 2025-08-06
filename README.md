@@ -12,6 +12,8 @@ Schema
 *Description*
 Kdad Library is a beautifully crafted iOS app that lets users browse, search, and view detailed information about popular books using the Google Books API. It features rich UI, a dynamic detail screen with a backdrop, metadata, and favoriting system, and a powerful search functionality to explore titles.
 
+##https://www.loom.com/share/faf24dcbd7284b2f9f8379596c583276?sid=82ef1a60-c6a4-4a1a-99b5-4988ccd89e52
+
 *App Evaluation*
 Category: Books / Reference
 Mobile: iOS
