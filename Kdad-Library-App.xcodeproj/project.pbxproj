@@ -6,6 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		CE20FC1F2E429E070090EF18 /* Nuke in Frameworks */ = {isa = PBXBuildFile; productRef = CE20FC1E2E429E070090EF18 /* Nuke */; };
+		CE20FC212E429E070090EF18 /* NukeExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = CE20FC202E429E070090EF18 /* NukeExtensions */; };
+		CE20FC232E429E070090EF18 /* NukeUI in Frameworks */ = {isa = PBXBuildFile; productRef = CE20FC222E429E070090EF18 /* NukeUI */; };
+		CE20FC252E429E070090EF18 /* NukeVideo in Frameworks */ = {isa = PBXBuildFile; productRef = CE20FC242E429E070090EF18 /* NukeVideo */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		CE20FBDE2E41C04C0090EF18 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -65,6 +72,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CE20FC232E429E070090EF18 /* NukeUI in Frameworks */,
+				CE20FC1F2E429E070090EF18 /* Nuke in Frameworks */,
+				CE20FC212E429E070090EF18 /* NukeExtensions in Frameworks */,
+				CE20FC252E429E070090EF18 /* NukeVideo in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,6 +136,10 @@
 			);
 			name = "Kdad-Library-App";
 			packageProductDependencies = (
+				CE20FC1E2E429E070090EF18 /* Nuke */,
+				CE20FC202E429E070090EF18 /* NukeExtensions */,
+				CE20FC222E429E070090EF18 /* NukeUI */,
+				CE20FC242E429E070090EF18 /* NukeVideo */,
 			);
 			productName = "Kdad-Library-App";
 			productReference = CE20FBC72E41C0490090EF18 /* Kdad-Library-App.app */;
@@ -208,6 +223,9 @@
 			);
 			mainGroup = CE20FBBE2E41C0490090EF18;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				CE20FC1B2E4298EB0090EF18 /* XCRemoteSwiftPackageReference "Nuke" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CE20FBC82E41C0490090EF18 /* Products */;
 			projectDirPath = "";
@@ -294,7 +312,6 @@
 				INFOPLIST_FILE = "Kdad-Library-App/Info.plist";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -322,7 +339,6 @@
 				INFOPLIST_FILE = "Kdad-Library-App/Info.plist";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -571,6 +587,40 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		CE20FC1B2E4298EB0090EF18 /* XCRemoteSwiftPackageReference "Nuke" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kean/Nuke";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.8.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		CE20FC1E2E429E070090EF18 /* Nuke */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE20FC1B2E4298EB0090EF18 /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = Nuke;
+		};
+		CE20FC202E429E070090EF18 /* NukeExtensions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE20FC1B2E4298EB0090EF18 /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = NukeExtensions;
+		};
+		CE20FC222E429E070090EF18 /* NukeUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE20FC1B2E4298EB0090EF18 /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = NukeUI;
+		};
+		CE20FC242E429E070090EF18 /* NukeVideo */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE20FC1B2E4298EB0090EF18 /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = NukeVideo;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = CE20FBBF2E41C0490090EF18 /* Project object */;
 }
