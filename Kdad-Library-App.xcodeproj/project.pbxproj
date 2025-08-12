@@ -11,6 +11,11 @@
 		CE20FC212E429E070090EF18 /* NukeExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = CE20FC202E429E070090EF18 /* NukeExtensions */; };
 		CE20FC232E429E070090EF18 /* NukeUI in Frameworks */ = {isa = PBXBuildFile; productRef = CE20FC222E429E070090EF18 /* NukeUI */; };
 		CE20FC252E429E070090EF18 /* NukeVideo in Frameworks */ = {isa = PBXBuildFile; productRef = CE20FC242E429E070090EF18 /* NukeVideo */; };
+		CE20FC342E4AE6970090EF18 /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = CE20FC332E4AE6970090EF18 /* FirebaseAI */; };
+		CE20FC362E4AE6970090EF18 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = CE20FC352E4AE6970090EF18 /* FirebaseAnalytics */; };
+		CE20FC382E4AE6970090EF18 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = CE20FC372E4AE6970090EF18 /* FirebaseAnalyticsCore */; };
+		CE20FC3A2E4AE6970090EF18 /* FirebaseAnalyticsIdentitySupport in Frameworks */ = {isa = PBXBuildFile; productRef = CE20FC392E4AE6970090EF18 /* FirebaseAnalyticsIdentitySupport */; };
+		CE20FC3C2E4AE6970090EF18 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = CE20FC3B2E4AE6970090EF18 /* FirebaseAppCheck */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +49,20 @@
 			);
 			target = CE20FBC62E41C0490090EF18 /* Kdad-Library-App */;
 		};
+		CE20FC302E4AE4B10090EF18 /* Exceptions for "Kdad-Library-App" folder in "Kdad-Library-AppTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"GoogleService-Info.plist",
+			);
+			target = CE20FBDC2E41C04C0090EF18 /* Kdad-Library-AppTests */;
+		};
+		CE20FC312E4AE4B10090EF18 /* Exceptions for "Kdad-Library-App" folder in "Kdad-Library-AppUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"GoogleService-Info.plist",
+			);
+			target = CE20FBE62E41C04C0090EF18 /* Kdad-Library-AppUITests */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -51,6 +70,8 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				CE20FBEF2E41C04C0090EF18 /* Exceptions for "Kdad-Library-App" folder in "Kdad-Library-App" target */,
+				CE20FC302E4AE4B10090EF18 /* Exceptions for "Kdad-Library-App" folder in "Kdad-Library-AppTests" target */,
+				CE20FC312E4AE4B10090EF18 /* Exceptions for "Kdad-Library-App" folder in "Kdad-Library-AppUITests" target */,
 			);
 			path = "Kdad-Library-App";
 			sourceTree = "<group>";
@@ -72,9 +93,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CE20FC3A2E4AE6970090EF18 /* FirebaseAnalyticsIdentitySupport in Frameworks */,
+				CE20FC342E4AE6970090EF18 /* FirebaseAI in Frameworks */,
 				CE20FC232E429E070090EF18 /* NukeUI in Frameworks */,
+				CE20FC362E4AE6970090EF18 /* FirebaseAnalytics in Frameworks */,
 				CE20FC1F2E429E070090EF18 /* Nuke in Frameworks */,
 				CE20FC212E429E070090EF18 /* NukeExtensions in Frameworks */,
+				CE20FC382E4AE6970090EF18 /* FirebaseAnalyticsCore in Frameworks */,
+				CE20FC3C2E4AE6970090EF18 /* FirebaseAppCheck in Frameworks */,
 				CE20FC252E429E070090EF18 /* NukeVideo in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -140,6 +166,11 @@
 				CE20FC202E429E070090EF18 /* NukeExtensions */,
 				CE20FC222E429E070090EF18 /* NukeUI */,
 				CE20FC242E429E070090EF18 /* NukeVideo */,
+				CE20FC332E4AE6970090EF18 /* FirebaseAI */,
+				CE20FC352E4AE6970090EF18 /* FirebaseAnalytics */,
+				CE20FC372E4AE6970090EF18 /* FirebaseAnalyticsCore */,
+				CE20FC392E4AE6970090EF18 /* FirebaseAnalyticsIdentitySupport */,
+				CE20FC3B2E4AE6970090EF18 /* FirebaseAppCheck */,
 			);
 			productName = "Kdad-Library-App";
 			productReference = CE20FBC72E41C0490090EF18 /* Kdad-Library-App.app */;
@@ -225,6 +256,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				CE20FC1B2E4298EB0090EF18 /* XCRemoteSwiftPackageReference "Nuke" */,
+				CE20FC322E4AE6970090EF18 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CE20FBC82E41C0490090EF18 /* Products */;
@@ -597,6 +629,14 @@
 				minimumVersion = 12.8.0;
 			};
 		};
+		CE20FC322E4AE6970090EF18 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.1.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -619,6 +659,31 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CE20FC1B2E4298EB0090EF18 /* XCRemoteSwiftPackageReference "Nuke" */;
 			productName = NukeVideo;
+		};
+		CE20FC332E4AE6970090EF18 /* FirebaseAI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE20FC322E4AE6970090EF18 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAI;
+		};
+		CE20FC352E4AE6970090EF18 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE20FC322E4AE6970090EF18 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		CE20FC372E4AE6970090EF18 /* FirebaseAnalyticsCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE20FC322E4AE6970090EF18 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsCore;
+		};
+		CE20FC392E4AE6970090EF18 /* FirebaseAnalyticsIdentitySupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE20FC322E4AE6970090EF18 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsIdentitySupport;
+		};
+		CE20FC3B2E4AE6970090EF18 /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE20FC322E4AE6970090EF18 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
