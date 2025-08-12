@@ -6,8 +6,12 @@
 //
 
 import UIKit
+import FirebaseAuth
+import FirebaseFirestore
 
 class RegisterViewController: UIViewController {
+
+    private let db = Firestore.firestore()
 
     // MARK: UI Elements
 
@@ -93,6 +97,10 @@ class RegisterViewController: UIViewController {
         tf.placeholder = "Password (min 6 characters)"
         tf.isSecureTextEntry = true
         tf.borderStyle = .roundedRect
+        tf.textContentType = .oneTimeCode        // Disable autofill entirely
+        tf.autocorrectionType = .no
+        tf.smartInsertDeleteType = .no
+        tf.smartQuotesType = .no
         tf.translatesAutoresizingMaskIntoConstraints = false
         return tf
     }()
@@ -102,6 +110,10 @@ class RegisterViewController: UIViewController {
         tf.placeholder = "Re-enter Password"
         tf.isSecureTextEntry = true
         tf.borderStyle = .roundedRect
+        tf.textContentType = .oneTimeCode        // Disable autofill entirely
+        tf.autocorrectionType = .no
+        tf.smartInsertDeleteType = .no
+        tf.smartQuotesType = .no
         tf.translatesAutoresizingMaskIntoConstraints = false
         return tf
     }()
@@ -133,15 +145,12 @@ class RegisterViewController: UIViewController {
         return btn
     }()
 
-    private let errorLabel: UILabel = {
-        let lbl = UILabel()
-        lbl.textColor = .systemRed
-        lbl.numberOfLines = 0
-        lbl.font = .systemFont(ofSize: 14)
-        lbl.textAlignment = .center
-        lbl.translatesAutoresizingMaskIntoConstraints = false
-        lbl.isHidden = true
-        return lbl
+    private let loadingIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .medium)
+        indicator.color = .white
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        indicator.hidesWhenStopped = true
+        return indicator
     }()
 
     // MARK: Lifecycle
@@ -172,7 +181,7 @@ class RegisterViewController: UIViewController {
         contentView.addSubview(passwordTextField)
         contentView.addSubview(reenterPasswordTextField)
         contentView.addSubview(actionButton)
-        contentView.addSubview(errorLabel)
+        actionButton.addSubview(loadingIndicator)
 
         passwordTextField.rightView = passwordToggleButton
         passwordTextField.rightViewMode = .always
@@ -239,10 +248,10 @@ class RegisterViewController: UIViewController {
             actionButton.trailingAnchor.constraint(equalTo: reenterPasswordTextField.trailingAnchor),
             actionButton.heightAnchor.constraint(equalToConstant: 50),
 
-            errorLabel.topAnchor.constraint(equalTo: actionButton.bottomAnchor, constant: 12),
-            errorLabel.leadingAnchor.constraint(equalTo: actionButton.leadingAnchor),
-            errorLabel.trailingAnchor.constraint(equalTo: actionButton.trailingAnchor),
-            errorLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
+            loadingIndicator.centerYAnchor.constraint(equalTo: actionButton.centerYAnchor),
+            loadingIndicator.trailingAnchor.constraint(equalTo: actionButton.trailingAnchor, constant: -16),
+
+            contentView.bottomAnchor.constraint(equalTo: actionButton.bottomAnchor, constant: 20)
         ])
     }
 
@@ -275,42 +284,109 @@ class RegisterViewController: UIViewController {
     }
 
     @objc private func didTapRegister() {
-        errorLabel.isHidden = true
+        // Hide previous errors and disable sign up button, show loading
+        actionButton.isEnabled = false
+        loadingIndicator.startAnimating()
 
         guard let name = nameTextField.text, !name.isEmpty else {
-            showError("Please enter your name.")
+            showAlert(title: "Name Required", message: "Please enter your name.")
+            finishLoading()
             return
         }
 
         guard let email = emailTextField.text, isValidEmail(email) else {
-            showError("Please enter a valid email address.")
+            showAlert(title: "Invalid Email", message: "Please enter a valid email address.")
+            finishLoading()
             return
         }
 
         guard let reEmail = reenterEmailTextField.text, reEmail == email else {
-            showError("Email addresses do not match.")
+            showAlert(title: "Email Mismatch", message: "Email addresses do not match.")
+            finishLoading()
             return
         }
 
         guard let password = passwordTextField.text, password.count >= 6 else {
-            showError("Password must be at least 6 characters.")
+            showAlert(title: "Invalid Password", message: "Password must be at least 6 characters.")
+            finishLoading()
             return
         }
 
         guard let rePassword = reenterPasswordTextField.text, rePassword == password else {
-            showError("Passwords do not match.")
+            showAlert(title: "Password Mismatch", message: "Passwords do not match.")
+            finishLoading()
             return
         }
 
-        // TODO: Implement registration logic here
-        print("Registering user: \(name), email: \(email)")
+        // Firebase create user
+        Auth.auth().createUser(withEmail: email, password: password) { [weak self] authResult, error in
+            guard let self = self else { return }
+
+            print("DEBUG: createUser authResult: \(String(describing: authResult))")
+            print("DEBUG: createUser error: \(String(describing: error))")
+
+            if let error = error {
+                self.showAlert(title: "Registration Failed", message: error.localizedDescription)
+                self.finishLoading()
+                return
+            }
+
+            guard let user = authResult?.user else {
+                // Provide more detailed debug message
+                let debugMessage = """
+                Registration failed:
+                authResult: \(String(describing: authResult))
+                error: \(String(describing: error))
+                """
+                self.showAlert(title: "Registration Failed", message: debugMessage)
+                self.finishLoading()
+                return
+            }
+
+            // Save additional user info in Firestore
+            self.db.collection("users").document(user.uid).setData([
+                "name": name,
+                "email": email,
+                "createdAt": Timestamp(date: Date())
+            ]) { err in
+                if let err = err {
+                    self.showAlert(title: "Data Save Failed", message: err.localizedDescription)
+                    self.finishLoading()
+                } else {
+                    // Send email verification
+                    user.sendEmailVerification { verificationError in
+                        if let verificationError = verificationError {
+                            self.showAlert(title: "Verification Email Failed", message: verificationError.localizedDescription)
+                            self.finishLoading()
+                        } else {
+                            self.finishLoading()
+                            self.showAlert(title: "Registration Successful", message: "Please check your email to verify your account.") {
+                                self.dismiss(animated: true)
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // MARK: Helper Methods
 
-    private func showError(_ message: String) {
-        errorLabel.text = message
-        errorLabel.isHidden = false
+    private func finishLoading() {
+        DispatchQueue.main.async {
+            self.loadingIndicator.stopAnimating()
+            self.actionButton.isEnabled = true
+        }
+    }
+
+    private func showAlert(title: String, message: String, completion: (() -> Void)? = nil) {
+        DispatchQueue.main.async {
+            let alertVC = UIAlertController(title: title, message: message, preferredStyle: .alert)
+            alertVC.addAction(UIAlertAction(title: "OK", style: .default) { _ in
+                completion?()
+            })
+            self.present(alertVC, animated: true)
+        }
     }
 
     private func isValidEmail(_ email: String) -> Bool {
@@ -323,12 +399,32 @@ class RegisterViewController: UIViewController {
 
     @objc private func togglePasswordVisibility() {
         passwordTextField.isSecureTextEntry.toggle()
+
+        if let existingText = passwordTextField.text, passwordTextField.isFirstResponder {
+            passwordTextField.text = nil
+            passwordTextField.text = existingText
+
+            if let endPosition = passwordTextField.position(from: passwordTextField.beginningOfDocument, offset: existingText.count) {
+                passwordTextField.selectedTextRange = passwordTextField.textRange(from: endPosition, to: endPosition)
+            }
+        }
+
         let imageName = passwordTextField.isSecureTextEntry ? "eye.slash" : "eye"
         passwordToggleButton.setImage(UIImage(systemName: imageName), for: .normal)
     }
 
     @objc private func toggleReenterPasswordVisibility() {
         reenterPasswordTextField.isSecureTextEntry.toggle()
+
+        if let existingText = reenterPasswordTextField.text, reenterPasswordTextField.isFirstResponder {
+            reenterPasswordTextField.text = nil
+            reenterPasswordTextField.text = existingText
+
+            if let endPosition = reenterPasswordTextField.position(from: reenterPasswordTextField.beginningOfDocument, offset: existingText.count) {
+                reenterPasswordTextField.selectedTextRange = reenterPasswordTextField.textRange(from: endPosition, to: endPosition)
+            }
+        }
+
         let imageName = reenterPasswordTextField.isSecureTextEntry ? "eye.slash" : "eye"
         reenterPasswordToggleButton.setImage(UIImage(systemName: imageName), for: .normal)
     }

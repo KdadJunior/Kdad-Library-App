@@ -16,6 +16,10 @@
 		CE20FC382E4AE6970090EF18 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = CE20FC372E4AE6970090EF18 /* FirebaseAnalyticsCore */; };
 		CE20FC3A2E4AE6970090EF18 /* FirebaseAnalyticsIdentitySupport in Frameworks */ = {isa = PBXBuildFile; productRef = CE20FC392E4AE6970090EF18 /* FirebaseAnalyticsIdentitySupport */; };
 		CE20FC3C2E4AE6970090EF18 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = CE20FC3B2E4AE6970090EF18 /* FirebaseAppCheck */; };
+		CE20FC3E2E4AF9140090EF18 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = CE20FC3D2E4AF9140090EF18 /* FirebaseAuth */; };
+		CE20FC402E4AF9140090EF18 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = CE20FC3F2E4AF9140090EF18 /* FirebaseCore */; };
+		CE20FC422E4AF9140090EF18 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = CE20FC412E4AF9140090EF18 /* FirebaseCrashlytics */; };
+		CE20FC442E4AF9140090EF18 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = CE20FC432E4AF9140090EF18 /* FirebaseFirestore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -94,12 +98,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				CE20FC3A2E4AE6970090EF18 /* FirebaseAnalyticsIdentitySupport in Frameworks */,
+				CE20FC442E4AF9140090EF18 /* FirebaseFirestore in Frameworks */,
+				CE20FC3E2E4AF9140090EF18 /* FirebaseAuth in Frameworks */,
+				CE20FC402E4AF9140090EF18 /* FirebaseCore in Frameworks */,
 				CE20FC342E4AE6970090EF18 /* FirebaseAI in Frameworks */,
 				CE20FC232E429E070090EF18 /* NukeUI in Frameworks */,
 				CE20FC362E4AE6970090EF18 /* FirebaseAnalytics in Frameworks */,
 				CE20FC1F2E429E070090EF18 /* Nuke in Frameworks */,
 				CE20FC212E429E070090EF18 /* NukeExtensions in Frameworks */,
 				CE20FC382E4AE6970090EF18 /* FirebaseAnalyticsCore in Frameworks */,
+				CE20FC422E4AF9140090EF18 /* FirebaseCrashlytics in Frameworks */,
 				CE20FC3C2E4AE6970090EF18 /* FirebaseAppCheck in Frameworks */,
 				CE20FC252E429E070090EF18 /* NukeVideo in Frameworks */,
 			);
@@ -171,6 +179,10 @@
 				CE20FC372E4AE6970090EF18 /* FirebaseAnalyticsCore */,
 				CE20FC392E4AE6970090EF18 /* FirebaseAnalyticsIdentitySupport */,
 				CE20FC3B2E4AE6970090EF18 /* FirebaseAppCheck */,
+				CE20FC3D2E4AF9140090EF18 /* FirebaseAuth */,
+				CE20FC3F2E4AF9140090EF18 /* FirebaseCore */,
+				CE20FC412E4AF9140090EF18 /* FirebaseCrashlytics */,
+				CE20FC432E4AF9140090EF18 /* FirebaseFirestore */,
 			);
 			productName = "Kdad-Library-App";
 			productReference = CE20FBC72E41C0490090EF18 /* Kdad-Library-App.app */;
@@ -684,6 +696,26 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CE20FC322E4AE6970090EF18 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAppCheck;
+		};
+		CE20FC3D2E4AF9140090EF18 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE20FC322E4AE6970090EF18 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		CE20FC3F2E4AF9140090EF18 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE20FC322E4AE6970090EF18 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		CE20FC412E4AF9140090EF18 /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE20FC322E4AE6970090EF18 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
+		CE20FC432E4AF9140090EF18 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE20FC322E4AE6970090EF18 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

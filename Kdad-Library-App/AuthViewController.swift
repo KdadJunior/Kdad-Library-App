@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class AuthViewController: UIViewController {
 
@@ -15,12 +16,11 @@ class AuthViewController: UIViewController {
         let iv = UIImageView(image: UIImage(named: "library_background"))
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
-        //iv.alpha = 0.15  // light opacity for background
         return iv
     }()
 
     private let logoImageView: UIImageView = {
-        let iv = UIImageView(image: UIImage(named: "library_logo")) // Your book/library logo asset
+        let iv = UIImageView(image: UIImage(named: "library_logo"))
         iv.contentMode = .scaleAspectFit
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
@@ -65,7 +65,6 @@ class AuthViewController: UIViewController {
         return tf
     }()
 
-    // Eye toggle button for password visibility
     private lazy var passwordToggleButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "eye.slash"), for: .normal)
@@ -118,7 +117,7 @@ class AuthViewController: UIViewController {
     // MARK: UI Setup
 
     private func setupUI() {
-        view.addSubview(backgroundImageView)  // Add background first
+        view.addSubview(backgroundImageView)
         view.addSubview(logoImageView)
         view.addSubview(welcomeLabel)
         view.addSubview(taglineLabel)
@@ -128,12 +127,10 @@ class AuthViewController: UIViewController {
         view.addSubview(actionButton)
         view.addSubview(errorLabel)
 
-        // Attach password toggle button to rightView of passwordTextField
         passwordTextField.rightView = passwordToggleButton
         passwordTextField.rightViewMode = .always
 
         NSLayoutConstraint.activate([
-            // Background fill constraints
             backgroundImageView.topAnchor.constraint(equalTo: view.topAnchor),
             backgroundImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             backgroundImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -204,11 +201,12 @@ class AuthViewController: UIViewController {
         errorLabel.isHidden = true
         if toggleSegmentedControl.selectedSegmentIndex == 0 {
             actionButton.setTitle("Sign In", for: .normal)
-            // TODO: show sign in fields (for now only sign in fields)
+            // Sign In mode stays here
         } else {
-            actionButton.setTitle("Sign In", for: .normal)
-            // TODO: present RegisterViewController for registration form
-            present(RegisterViewController(), animated: true)
+            // Present Register screen on selecting Register
+            let registerVC = RegisterViewController()
+            registerVC.modalPresentationStyle = .fullScreen
+            present(registerVC, animated: true)
             toggleSegmentedControl.selectedSegmentIndex = 0
         }
     }
@@ -226,12 +224,23 @@ class AuthViewController: UIViewController {
             return
         }
 
-        if toggleSegmentedControl.selectedSegmentIndex == 0 {
-            // TODO: Implement your sign in logic here
-            print("Signing in with \(email)")
-        } else {
-            // TODO: Implement your register logic here
-            print("Registering with \(email)")
+        // Firebase sign-in
+        Auth.auth().signIn(withEmail: email, password: password) { [weak self] authResult, error in
+            guard let self = self else { return }
+
+            if let error = error {
+                self.showError(error.localizedDescription)
+                return
+            }
+
+            // Sign-in success
+            DispatchQueue.main.async {
+                // Navigate to main app screen or dismiss auth
+                print("Signed in successfully: \(email)")
+                // For example:
+                // self.dismiss(animated: true)
+                // or navigate to main tab bar or home screen
+            }
         }
     }
 
