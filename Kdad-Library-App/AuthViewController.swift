@@ -91,6 +91,15 @@ class AuthViewController: UIViewController {
         return btn
     }()
 
+    private let forgotPasswordButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setTitle("Forgot Password?", for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
+        btn.tintColor = .systemBlue
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        return btn
+    }()
+
     private let errorLabel: UILabel = {
         let label = UILabel()
         label.textColor = .systemRed
@@ -125,6 +134,7 @@ class AuthViewController: UIViewController {
         view.addSubview(emailTextField)
         view.addSubview(passwordTextField)
         view.addSubview(actionButton)
+        view.addSubview(forgotPasswordButton)
         view.addSubview(errorLabel)
 
         passwordTextField.rightView = passwordToggleButton
@@ -168,7 +178,10 @@ class AuthViewController: UIViewController {
             actionButton.trailingAnchor.constraint(equalTo: passwordTextField.trailingAnchor),
             actionButton.heightAnchor.constraint(equalToConstant: 50),
 
-            errorLabel.topAnchor.constraint(equalTo: actionButton.bottomAnchor, constant: 12),
+            forgotPasswordButton.topAnchor.constraint(equalTo: actionButton.bottomAnchor, constant: 12),
+            forgotPasswordButton.trailingAnchor.constraint(equalTo: actionButton.trailingAnchor),
+
+            errorLabel.topAnchor.constraint(equalTo: forgotPasswordButton.bottomAnchor, constant: 12),
             errorLabel.leadingAnchor.constraint(equalTo: actionButton.leadingAnchor),
             errorLabel.trailingAnchor.constraint(equalTo: actionButton.trailingAnchor),
         ])
@@ -179,6 +192,7 @@ class AuthViewController: UIViewController {
     private func setupActions() {
         toggleSegmentedControl.addTarget(self, action: #selector(didChangeSegment), for: .valueChanged)
         actionButton.addTarget(self, action: #selector(didTapAction), for: .touchUpInside)
+        forgotPasswordButton.addTarget(self, action: #selector(didTapForgotPassword), for: .touchUpInside)
     }
 
     private func setupDismissKeyboardGesture() {
@@ -233,15 +247,34 @@ class AuthViewController: UIViewController {
                 return
             }
 
-            // Sign-in success
-            DispatchQueue.main.async {
-                // Navigate to main app screen or dismiss auth
-                print("Signed in successfully: \(email)")
-                // For example:
-                // self.dismiss(animated: true)
-                // or navigate to main tab bar or home screen
+            // Check if user email is verified
+            if let user = Auth.auth().currentUser {
+                user.reload { error in
+                    if let error = error {
+                        self.showError("Error verifying email status: \(error.localizedDescription)")
+                        return
+                    }
+                    if user.isEmailVerified {
+                        // Successful sign in and verified email
+                        DispatchQueue.main.async {
+                            print("Signed in successfully: \(email)")
+                            // Navigate to main app screen or dismiss auth
+                            let dashboardVC = DashboardViewController()
+                            dashboardVC.modalPresentationStyle = .fullScreen
+                            self.present(dashboardVC, animated: true)
+                        }
+                    } else {
+                        self.showError("Please verify your email before signing in.")
+                    }
+                }
             }
         }
+    }
+
+    @objc private func didTapForgotPassword() {
+        let forgotPasswordVC = ForgotPasswordViewController()
+        forgotPasswordVC.modalPresentationStyle = .fullScreen
+        present(forgotPasswordVC, animated: true)
     }
 
     // MARK: Helper Methods

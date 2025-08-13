@@ -97,7 +97,7 @@ class RegisterViewController: UIViewController {
         tf.placeholder = "Password (min 6 characters)"
         tf.isSecureTextEntry = true
         tf.borderStyle = .roundedRect
-        tf.textContentType = .oneTimeCode        // Disable autofill entirely
+        tf.textContentType = .oneTimeCode
         tf.autocorrectionType = .no
         tf.smartInsertDeleteType = .no
         tf.smartQuotesType = .no
@@ -110,7 +110,7 @@ class RegisterViewController: UIViewController {
         tf.placeholder = "Re-enter Password"
         tf.isSecureTextEntry = true
         tf.borderStyle = .roundedRect
-        tf.textContentType = .oneTimeCode        // Disable autofill entirely
+        tf.textContentType = .oneTimeCode
         tf.autocorrectionType = .no
         tf.smartInsertDeleteType = .no
         tf.smartQuotesType = .no
@@ -142,6 +142,17 @@ class RegisterViewController: UIViewController {
         btn.tintColor = .white
         btn.layer.cornerRadius = 12
         btn.translatesAutoresizingMaskIntoConstraints = false
+        return btn
+    }()
+    
+    // New: Resend verification button, hidden by default
+    private let resendVerificationButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setTitle("Resend Verification Email", for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
+        btn.tintColor = .systemBlue
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.isHidden = true
         return btn
     }()
 
@@ -181,6 +192,7 @@ class RegisterViewController: UIViewController {
         contentView.addSubview(passwordTextField)
         contentView.addSubview(reenterPasswordTextField)
         contentView.addSubview(actionButton)
+        contentView.addSubview(resendVerificationButton)  // Add resend button to contentView
         actionButton.addSubview(loadingIndicator)
 
         passwordTextField.rightView = passwordToggleButton
@@ -248,10 +260,13 @@ class RegisterViewController: UIViewController {
             actionButton.trailingAnchor.constraint(equalTo: reenterPasswordTextField.trailingAnchor),
             actionButton.heightAnchor.constraint(equalToConstant: 50),
 
+            resendVerificationButton.topAnchor.constraint(equalTo: actionButton.bottomAnchor, constant: 12),
+            resendVerificationButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            
             loadingIndicator.centerYAnchor.constraint(equalTo: actionButton.centerYAnchor),
             loadingIndicator.trailingAnchor.constraint(equalTo: actionButton.trailingAnchor, constant: -16),
 
-            contentView.bottomAnchor.constraint(equalTo: actionButton.bottomAnchor, constant: 20)
+            contentView.bottomAnchor.constraint(equalTo: resendVerificationButton.bottomAnchor, constant: 20)
         ])
     }
 
@@ -260,6 +275,7 @@ class RegisterViewController: UIViewController {
     private func setupActions() {
         backButton.addTarget(self, action: #selector(didTapBack), for: .touchUpInside)
         actionButton.addTarget(self, action: #selector(didTapRegister), for: .touchUpInside)
+        resendVerificationButton.addTarget(self, action: #selector(didTapResendVerification), for: .touchUpInside)
     }
 
     private func setupDismissKeyboardGesture() {
@@ -287,6 +303,7 @@ class RegisterViewController: UIViewController {
         // Hide previous errors and disable sign up button, show loading
         actionButton.isEnabled = false
         loadingIndicator.startAnimating()
+        resendVerificationButton.isHidden = true
 
         guard let name = nameTextField.text, !name.isEmpty else {
             showAlert(title: "Name Required", message: "Please enter your name.")
@@ -306,8 +323,8 @@ class RegisterViewController: UIViewController {
             return
         }
 
-        guard let password = passwordTextField.text, password.count >= 6 else {
-            showAlert(title: "Invalid Password", message: "Password must be at least 6 characters.")
+        guard let password = passwordTextField.text, isStrongPassword(password) else {
+            showAlert(title: "Weak Password", message: "Password must be at least 6 characters and contain uppercase, lowercase, digit, and special character.")
             finishLoading()
             return
         }
@@ -332,7 +349,6 @@ class RegisterViewController: UIViewController {
             }
 
             guard let user = authResult?.user else {
-                // Provide more detailed debug message
                 let debugMessage = """
                 Registration failed:
                 authResult: \(String(describing: authResult))
@@ -361,11 +377,54 @@ class RegisterViewController: UIViewController {
                         } else {
                             self.finishLoading()
                             self.showAlert(title: "Registration Successful", message: "Please check your email to verify your account.") {
+                                // Show resend button after success to allow resending if needed
+                                self.resendVerificationButton.isHidden = false
                                 self.dismiss(animated: true)
                             }
                         }
                     }
                 }
+            }
+        }
+    }
+
+    // MARK: Resend Verification
+
+    @objc private func didTapResendVerification() {
+        guard let user = Auth.auth().currentUser, !user.isEmailVerified else {
+            showAlert(title: "Already Verified", message: "Your email is already verified.")
+            return
+        }
+
+        user.sendEmailVerification { [weak self] error in
+            if let error = error {
+                self?.showAlert(title: "Resend Failed", message: error.localizedDescription)
+            } else {
+                self?.showAlert(title: "Email Sent", message: "Verification email resent successfully.")
+            }
+        }
+    }
+
+    // MARK: Password Strength Validation
+
+    private func isStrongPassword(_ password: String) -> Bool {
+        // At least 6 chars, one uppercase, one lowercase, one digit, one special char
+        let pattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z\\d]).{6,}$"
+        let predicate = NSPredicate(format:"SELF MATCHES %@", pattern)
+        return predicate.evaluate(with: password)
+    }
+
+    // MARK: Fetch User Info (example for after login)
+
+    func fetchUserInfo(uid: String, completion: @escaping (Result<[String: Any], Error>) -> Void) {
+        let userRef = db.collection("users").document(uid)
+        userRef.getDocument { snapshot, error in
+            if let error = error {
+                completion(.failure(error))
+            } else if let data = snapshot?.data() {
+                completion(.success(data))
+            } else {
+                completion(.failure(NSError(domain: "NoData", code: -1, userInfo: nil)))
             }
         }
     }
