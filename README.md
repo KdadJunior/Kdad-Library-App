@@ -1,13 +1,13 @@
-**Kdad Library 📚**
+##  Kdad Library 📚
 
-**Table of Contents**
+##  Table of Contents
 
 Overview
 Product Spec
 Wireframes
 Schema
 
-**Overview**
+##  Overview
 
 *Description*
 Kdad Library is a beautifully crafted iOS app that lets users browse, search, and view detailed information about popular books using the Google Books API. It features rich UI, a dynamic detail screen with a backdrop, metadata, and favoriting system, and a powerful search functionality to explore titles.
@@ -22,7 +22,7 @@ Market: Readers, students, book lovers, and educators.
 Habit: Encourages daily usage by making book discovery simple and interactive.
 Scope: MVP includes browsing, viewing details, favoriting books, and searching. Future versions may support book previews or library syncing.
 
-**Product Spec**
+##  Product Spec
 
 1. User Stories
 Must-Have
@@ -66,7 +66,7 @@ Below is the hand-drawn wireframe of the app’s navigation and key screens:
 BONUS: Digital Mockups & Interactive Prototype
  Add Figma/XD mockups if available.
 
-**Schema**
+##  Schema
 
 This section will be completed in Unit 9.
 
