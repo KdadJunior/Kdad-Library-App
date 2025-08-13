@@ -10,6 +10,16 @@ import UIKit
 
 class BookListViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
 
+    private let backButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setImage(UIImage(systemName: "chevron.left"), for: .normal)
+        btn.setTitle(" Back", for: .normal)
+        btn.tintColor = .systemIndigo
+        btn.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .medium)
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        return btn
+    }()
+
     private let headerStack = UIStackView()
     private let titleLabel = UILabel()
     private let searchBar = UISearchBar()
@@ -21,6 +31,7 @@ class BookListViewController: UIViewController, UITableViewDataSource, UITableVi
         view.backgroundColor = .systemBackground
 
         searchBar.delegate = self      // 🔹 Required for resigning first responder
+        setupBackButton()
         setupHeader()
         setupTableView()
         fetchBooks()
@@ -30,6 +41,31 @@ class BookListViewController: UIViewController, UITableViewDataSource, UITableVi
         tapGesture.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGesture)
     }
+
+    private func setupBackButton() {
+        view.addSubview(backButton)
+        NSLayoutConstraint.activate([
+            backButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            backButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            backButton.heightAnchor.constraint(equalToConstant: 32)
+        ])
+        backButton.addTarget(self, action: #selector(didTapBack), for: .touchUpInside)
+    }
+
+    @objc private func didTapBack() {
+        dismiss(animated: true)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: animated)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
@@ -58,7 +94,7 @@ class BookListViewController: UIViewController, UITableViewDataSource, UITableVi
         view.addSubview(headerStack)
 
         NSLayoutConstraint.activate([
-            headerStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            headerStack.topAnchor.constraint(equalTo: backButton.bottomAnchor, constant: 8),
             headerStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             headerStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
         ])

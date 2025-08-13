@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AVFoundation
 
 class DashboardViewController: UIViewController {
 
@@ -56,6 +57,19 @@ class DashboardViewController: UIViewController {
         return label
     }()
 
+    // Video container view (for playing book animation)
+    private let videoContainerView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.clipsToBounds = true
+        view.layer.cornerRadius = 12
+        return view
+    }()
+
+    // AVPlayer
+    private var player: AVPlayer?
+    private var playerLayer: AVPlayerLayer?
+
     // Go to Books Button (center, slightly lower)
     private let goToBooksButton: UIButton = {
         let btn = UIButton(type: .system)
@@ -81,7 +95,7 @@ class DashboardViewController: UIViewController {
     private let buttonsGridStackView: UIStackView = {
         let stack = UIStackView()
         stack.axis = .horizontal
-        stack.spacing = 30   // Reduced spacing for tighter columns
+        stack.spacing = 30
         stack.alignment = .top
         stack.distribution = .fillEqually
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -92,7 +106,7 @@ class DashboardViewController: UIViewController {
     private let leftColumnStackView: UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
-        stack.spacing = 24   // Reduced spacing between buttons
+        stack.spacing = 24
         stack.alignment = .fill
         stack.distribution = .fillEqually
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -103,7 +117,7 @@ class DashboardViewController: UIViewController {
     private let rightColumnStackView: UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
-        stack.spacing = 24   // Reduced spacing between buttons
+        stack.spacing = 24
         stack.alignment = .fill
         stack.distribution = .fillEqually
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -113,7 +127,7 @@ class DashboardViewController: UIViewController {
     // Create grid buttons with icon and title on one line (slightly smaller icon)
     private func createGridButton(title: String, systemImageName: String, tintColor: UIColor) -> UIButton {
         let btn = UIButton(type: .system)
-        let configImage = UIImage.SymbolConfiguration(pointSize: 24, weight: .medium)  // smaller icon size
+        let configImage = UIImage.SymbolConfiguration(pointSize: 24, weight: .medium)
         let image = UIImage(systemName: systemImageName, withConfiguration: configImage)
 
         if #available(iOS 15.0, *) {
@@ -124,7 +138,7 @@ class DashboardViewController: UIViewController {
             config.imagePadding = 8
             config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
                 var outgoing = incoming
-                outgoing.font = UIFont.systemFont(ofSize: 16, weight: .medium)  // slightly smaller font for two lines
+                outgoing.font = UIFont.systemFont(ofSize: 16, weight: .medium)
                 return outgoing
             }
             btn.configuration = config
@@ -156,6 +170,59 @@ class DashboardViewController: UIViewController {
 
         setupUI()
         setupActions()
+        setupVideoPlayer()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        playerLayer?.frame = videoContainerView.bounds
+    }
+
+    // MARK: Setup Video Player
+
+    private func setupVideoPlayer() {
+        guard let path = Bundle.main.path(forResource: "book_animation", ofType:"mp4") else {
+            print("book_animation.mp4 not found")
+            return
+        }
+        let url = URL(fileURLWithPath: path)
+        player = AVPlayer(url: url)
+        playerLayer = AVPlayerLayer(player: player)
+        guard let playerLayer = playerLayer else { return }
+
+        playerLayer.videoGravity = .resizeAspect
+
+        view.addSubview(videoContainerView)
+        view.addSubview(goToBooksButton)
+
+        videoContainerView.layer.addSublayer(playerLayer)
+
+        videoContainerView.translatesAutoresizingMaskIntoConstraints = false
+        goToBooksButton.translatesAutoresizingMaskIntoConstraints = false
+
+        playerLayer.frame = CGRect(x: 0, y: 0, width: 400, height: 240)
+
+        NSLayoutConstraint.activate([
+            videoContainerView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
+            videoContainerView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            videoContainerView.widthAnchor.constraint(equalToConstant: 400),
+            videoContainerView.heightAnchor.constraint(equalToConstant: 240),
+
+            goToBooksButton.topAnchor.constraint(equalTo: videoContainerView.bottomAnchor, constant: 60),
+            goToBooksButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+        ])
+
+        // Add notification observer to loop video
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(playerDidReachEnd),
+                                               name: .AVPlayerItemDidPlayToEndTime,
+                                               object: player?.currentItem)
+        player?.play()
+    }
+
+    @objc private func playerDidReachEnd(notification: Notification) {
+        player?.seek(to: .zero)
+        player?.play()
     }
 
     // MARK: UI Setup
@@ -168,7 +235,8 @@ class DashboardViewController: UIViewController {
         navBarView.addSubview(profileButton)
         navBarView.addSubview(titleLabel)
 
-        view.addSubview(goToBooksButton)
+        // Note: goToBooksButton and videoContainerView are added in setupVideoPlayer()
+
         view.addSubview(buttonsGridStackView)
 
         buttonsGridStackView.addArrangedSubview(leftColumnStackView)
@@ -207,14 +275,11 @@ class DashboardViewController: UIViewController {
             titleLabel.centerYAnchor.constraint(equalTo: navBarView.centerYAnchor),
             titleLabel.centerXAnchor.constraint(equalTo: navBarView.centerXAnchor),
 
-            goToBooksButton.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 40),  // pushed down closer to center
-            goToBooksButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-
             buttonsGridStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -40),
             buttonsGridStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
             buttonsGridStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
 
-            buttonsGridStackView.heightAnchor.constraint(equalToConstant: 200), // adjusted height
+            buttonsGridStackView.heightAnchor.constraint(equalToConstant: 200),
         ])
     }
 
@@ -246,9 +311,11 @@ class DashboardViewController: UIViewController {
     }
 
     @objc private func didTapGoToBooks() {
-        // Navigate to books browsing screen
         print("Go to Books tapped")
-        // TODO: Implement BooksViewController navigation here
+        let bookListVC = BookListViewController()
+        let navController = UINavigationController(rootViewController: bookListVC)
+        navController.modalPresentationStyle = .fullScreen
+        present(navController, animated: true)
     }
 
     @objc private func didTapFavoriteBooks() {
