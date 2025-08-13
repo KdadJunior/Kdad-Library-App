@@ -57,9 +57,11 @@ Book List Screen
 Book Detail Screen
 ↳ Tap back → Book List Screen
 
-**Wireframes**
+##  App Design Sketch
 
-Hand-drawn wireframes:
+Below is the hand-drawn wireframe of the app’s navigation and key screens:
+
+![App Wireframe](https://i.ibb.co/SXyhjYh3/Cam-Scanner-08-12-2025-13-15-1.jpg)
 
 BONUS: Digital Mockups & Interactive Prototype
  Add Figma/XD mockups if available.
