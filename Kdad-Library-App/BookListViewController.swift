@@ -24,15 +24,13 @@ class BookListViewController: UIViewController, UITableViewDataSource, UITableVi
     private let titleLabel = UILabel()
     private let searchBar = UISearchBar()
     private let tableView = UITableView()
-    private var books: [Book] = [] {
-        didSet { updateEmptyState() }
-    }
+    private var books: [Book] = [] { didSet { updateEmptyState() } }
 
-    // MARK: Live search helpers
+    // Live search helpers
     private var searchWorkItem: DispatchWorkItem?
     private var lastIssuedQueryID: Int = 0
 
-    // Simple loading indicator centered above the list
+    // Loading indicator (used only when NOT pull-to-refresh and NOT paginating)
     private let loadingIndicator: UIActivityIndicatorView = {
         let v = UIActivityIndicatorView(style: .medium)
         v.hidesWhenStopped = true
@@ -40,7 +38,7 @@ class BookListViewController: UIViewController, UITableViewDataSource, UITableVi
         return v
     }()
 
-    // Empty state label
+    // Empty state
     private let emptyLabel: UILabel = {
         let l = UILabel()
         l.text = "No books found"
@@ -50,24 +48,55 @@ class BookListViewController: UIViewController, UITableViewDataSource, UITableVi
         return l
     }()
 
+    // Pull-to-refresh
+    private let refreshControl: UIRefreshControl = {
+        let rc = UIRefreshControl()
+        rc.attributedTitle = NSAttributedString(string: "Refreshing…")
+        return rc
+    }()
+
+    // Pagination
+    private var currentQuery: String = "fiction"
+    private let pageSize: Int = 20
+    private var nextStartIndex: Int = 0
+    private var totalAvailable: Int = .max
+    private var isLoadingPage: Bool = false
+
+    // Footer spinner for pagination
+    private lazy var footerSpinner: UIActivityIndicatorView = {
+        let s = UIActivityIndicatorView(style: .medium)
+        s.frame = CGRect(x: 0, y: 0, width: tableView.bounds.width, height: 44)
+        s.hidesWhenStopped = true
+        return s
+    }()
+
+    // Pool of default queries so refresh gets fresh content
+    private let defaultQueries = [
+        "fiction","novel","bestsellers","science fiction","fantasy",
+        "history","biography","mystery","technology","poetry","romance",
+        "self help","business","travel","psychology","philosophy"
+    ]
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
 
         searchBar.delegate = self
-        searchBar.showsCancelButton = false   // never show Cancel
+        searchBar.showsCancelButton = false
         searchBar.placeholder = "Search books"
 
         setupBackButton()
         setupHeader()
         setupTableView()
         setupLoadingIndicator()
-        fetchBooks() // initial load with default query ("fiction")
+        setupRefreshControl()
 
-        // Tap anywhere to dismiss keyboard
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        tapGesture.cancelsTouchesInView = false
-        view.addGestureRecognizer(tapGesture)
+        // initial load (first page)
+        resetAndLoad(query: currentQuery)
+
+        let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
     }
 
     private func setupBackButton() {
@@ -80,15 +109,12 @@ class BookListViewController: UIViewController, UITableViewDataSource, UITableVi
         backButton.addTarget(self, action: #selector(didTapBack), for: .touchUpInside)
     }
 
-    @objc private func didTapBack() {
-        dismiss(animated: true)
-    }
+    @objc private func didTapBack() { dismiss(animated: true) }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: animated)
     }
-
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         navigationController?.setNavigationBarHidden(false, animated: animated)
@@ -100,19 +126,15 @@ class BookListViewController: UIViewController, UITableViewDataSource, UITableVi
     }
 
     private func setupHeader() {
-        title = ""  // Remove default nav title
+        title = ""
 
-        // Title
         titleLabel.text = "Kdad Library"
         titleLabel.font = .boldSystemFont(ofSize: 24)
         titleLabel.setContentHuggingPriority(.required, for: .horizontal)
 
-        // SearchBar
         searchBar.searchBarStyle = .minimal
         searchBar.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        searchBar.showsCancelButton = false
 
-        // Stack
         headerStack.axis = .horizontal
         headerStack.alignment = .center
         headerStack.spacing = 12
@@ -121,7 +143,6 @@ class BookListViewController: UIViewController, UITableViewDataSource, UITableVi
         headerStack.addArrangedSubview(searchBar)
 
         view.addSubview(headerStack)
-
         NSLayoutConstraint.activate([
             headerStack.topAnchor.constraint(equalTo: backButton.bottomAnchor, constant: 8),
             headerStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
@@ -138,8 +159,10 @@ class BookListViewController: UIViewController, UITableViewDataSource, UITableVi
         tableView.estimatedRowHeight = 120
         tableView.keyboardDismissMode = .onDrag
 
-        view.addSubview(tableView)
+        // Footer for pagination spinner (hidden by default)
+        tableView.tableFooterView = UIView(frame: .zero)
 
+        view.addSubview(tableView)
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: headerStack.bottomAnchor, constant: 8),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
@@ -156,67 +179,107 @@ class BookListViewController: UIViewController, UITableViewDataSource, UITableVi
         ])
     }
 
+    private func setupRefreshControl() {
+        refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
+        tableView.refreshControl = refreshControl
+    }
+
     private func updateEmptyState() {
         tableView.backgroundView = books.isEmpty ? emptyLabel : nil
     }
 
-    // MARK: Data
+    // MARK: Loading control
 
-    private func setLoading(_ loading: Bool) {
-        if loading { loadingIndicator.startAnimating() }
-        else { loadingIndicator.stopAnimating() }
+    private func setTopLoading(_ loading: Bool) {
+        // Show the top spinner only when NOT using pull-to-refresh and NOT paginating
+        if tableView.refreshControl?.isRefreshing == true || isLoadingPage {
+            loadingIndicator.stopAnimating()
+        } else {
+            loading ? loadingIndicator.startAnimating() : loadingIndicator.stopAnimating()
+        }
     }
 
-    /// Default fetch used on first load or when search text is cleared.
-    private func fetchBooks() {
-        setLoading(true)
-        GoogleBooksService.shared.fetchBooks { [weak self] result in
+    private func beginPageLoading() {
+        isLoadingPage = true
+        footerSpinner.startAnimating()
+        tableView.tableFooterView = footerSpinner
+    }
+
+    private func endPageLoading() {
+        isLoadingPage = false
+        footerSpinner.stopAnimating()
+        tableView.tableFooterView = UIView(frame: .zero)
+    }
+
+    // MARK: Data (pagination-aware)
+
+    private func resetAndLoad(query: String) {
+        // bump query id to invalidate in-flight requests
+        lastIssuedQueryID += 1
+
+        currentQuery = query
+        nextStartIndex = 0
+        totalAvailable = .max
+        books = []
+        tableView.reloadData()
+
+        loadNextPage(resetTopSpinner: true)
+    }
+
+    private func loadNextPage(resetTopSpinner: Bool = false) {
+        guard !isLoadingPage, books.count < totalAvailable else { return }
+
+        let thisQueryID = lastIssuedQueryID
+        if resetTopSpinner { setTopLoading(true) } else { beginPageLoading() }
+
+        GoogleBooksService.shared.fetchBooksPage(
+            query: currentQuery,
+            startIndex: nextStartIndex,
+            maxResults: pageSize
+        ) { [weak self] result in
             guard let self = self else { return }
             DispatchQueue.main.async {
-                self.setLoading(false)
+                guard thisQueryID == self.lastIssuedQueryID else {
+                    // stale response from an old query; ignore and stop spinners
+                    self.setTopLoading(false)
+                    self.endPageLoading()
+                    self.refreshControl.endRefreshing()
+                    return
+                }
+
+                self.setTopLoading(false)
+                self.endPageLoading()
+                self.refreshControl.endRefreshing()
+
                 switch result {
-                case .success(let books):
-                    self.books = books
+                case .success(let payload):
+                    self.totalAvailable = payload.total
+                    let newItems = payload.items
+                    self.books.append(contentsOf: newItems)
+                    self.nextStartIndex += newItems.count
                     self.tableView.reloadData()
                 case .failure(let error):
-                    print("Failed to fetch books:", error)
-                    self.books = []
-                    self.tableView.reloadData()
+                    print("Pagination fetch failed:", error)
                 }
             }
         }
     }
 
-    /// Debounced search against Google Books.
-    private func searchBooks(query: String) {
-        setLoading(true)
-        let queryID = lastIssuedQueryID + 1
-        lastIssuedQueryID = queryID
+    // MARK: Pull-to-refresh
 
-        GoogleBooksService.shared.fetchBooks(query: query) { [weak self] result in
-            guard let self = self else { return }
-            DispatchQueue.main.async {
-                // Ignore stale responses
-                guard queryID == self.lastIssuedQueryID else { return }
-                self.setLoading(false)
-                switch result {
-                case .success(let books):
-                    self.books = books
-                    self.tableView.reloadData()
-                case .failure(let error):
-                    print("Search failed:", error)
-                    self.books = []
-                    self.tableView.reloadData()
-                }
-            }
+    @objc private func handleRefresh() {
+        let trimmed = (searchBar.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty {
+            let randomQuery = defaultQueries.randomElement() ?? "fiction"
+            resetAndLoad(query: randomQuery)
+        } else {
+            resetAndLoad(query: trimmed)
         }
     }
 
-    // MARK: - UITableViewDataSource
+    // MARK: UITableViewDataSource
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return books.count
-    }
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { books.count }
 
     func tableView(_ tableView: UITableView,
                    cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -224,23 +287,29 @@ class BookListViewController: UIViewController, UITableViewDataSource, UITableVi
             withIdentifier: BookTableViewCell.identifier,
             for: indexPath
         ) as! BookTableViewCell
-
-        let book = books[indexPath.row]
-        cell.configure(with: book)
+        cell.configure(with: books[indexPath.row])
         return cell
     }
 
-    // MARK: - UITableViewDelegate
+    // MARK: UITableViewDelegate
 
-    func tableView(_ tableView: UITableView,
-                   didSelectRowAt indexPath: IndexPath) {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let book = books[indexPath.row]
-        let detailVC = BookDetailViewController(book: book)
+        let detailVC = BookDetailViewController(book: books[indexPath.row])
         navigationController?.pushViewController(detailVC, animated: true)
     }
 
-    // MARK: - UISearchBarDelegate
+    // Trigger next page when approaching the end
+    func tableView(_ tableView: UITableView,
+                   willDisplay cell: UITableViewCell,
+                   forRowAt indexPath: IndexPath) {
+        let threshold = books.count - 5
+        if indexPath.row == threshold {
+            loadNextPage()
+        }
+    }
+
+    // MARK: UISearchBarDelegate
 
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         searchBar.setShowsCancelButton(false, animated: false)
@@ -254,17 +323,15 @@ class BookListViewController: UIViewController, UITableViewDataSource, UITableVi
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         searchBar.setShowsCancelButton(false, animated: false)
 
-        // Debounce: cancel any pending work
         searchWorkItem?.cancel()
         let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        // If cleared, restore default list after a short delay
         let work = DispatchWorkItem { [weak self] in
             guard let self = self else { return }
             if trimmed.isEmpty {
-                self.fetchBooks()
+                self.resetAndLoad(query: "fiction")
             } else {
-                self.searchBooks(query: trimmed)
+                self.resetAndLoad(query: trimmed)
             }
         }
         searchWorkItem = work
@@ -272,13 +339,8 @@ class BookListViewController: UIViewController, UITableViewDataSource, UITableVi
     }
 
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        // Perform immediate search when user taps Search on keyboard
         let trimmed = (searchBar.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-        if trimmed.isEmpty {
-            fetchBooks()
-        } else {
-            searchBooks(query: trimmed)
-        }
+        resetAndLoad(query: trimmed.isEmpty ? "fiction" : trimmed)
         dismissKeyboard()
     }
 

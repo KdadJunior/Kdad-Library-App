@@ -305,9 +305,10 @@ class DashboardViewController: UIViewController {
     }
 
     @objc private func didTapProfile() {
-        // Navigate to profile screen
-        print("Profile button tapped")
-        // TODO: Implement ProfileViewController navigation here
+        let vc = ProfileViewController()
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .formSheet // looks nice on iPhone & iPad
+        present(nav, animated: true)
     }
 
     @objc private func didTapGoToBooks() {
@@ -319,18 +320,25 @@ class DashboardViewController: UIViewController {
     }
 
     @objc private func didTapFavoriteBooks() {
-        print("Favorite Books tapped")
-        // TODO: Implement FavoriteBooksViewController navigation here
+        let favoritesVC = FavoriteBooksViewController()
+        let nav = UINavigationController(rootViewController: favoritesVC)
+        nav.modalPresentationStyle = .fullScreen   // keep your modal style
+        present(nav, animated: true)
     }
 
     @objc private func didTapReadLater() {
         print("Read Later tapped")
-        // TODO: Implement ReadLaterViewController navigation here
+        let vc = ReadLaterViewController()
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
     }
 
     @objc private func didTapNearestLibrary() {
-        print("Find Nearest Library tapped")
-        // TODO: Implement NearestLibraryViewController navigation here
+        let vc = NearestLibraryViewController()
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
     }
 
     @objc private func didTapChatbot() {
@@ -344,7 +352,9 @@ class DashboardViewController: UIViewController {
     }
 
     @objc private func didTapSettings() {
-        print("Settings tapped")
-        // TODO: Implement SettingsViewController navigation here
+        let vc = SettingsViewController()
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .formSheet
+        present(nav, animated: true)
     }
 }

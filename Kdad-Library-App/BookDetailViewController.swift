@@ -14,10 +14,14 @@ class BookDetailViewController: UIViewController {
 
     private let book: Book
     private var isFavorite: Bool = false
+    private var isReadLater: Bool = false
 
     // MARK: UI Elements
     private let backdropImageView = UIImageView()
     private let favoriteButton = UIButton(type: .system)
+    private let readLaterButton = UIButton(type: .system)
+    private let topButtonsStack = UIStackView()
+
     private let posterImageView = UIImageView()
     private let metaContainer = UIStackView()
     private let titleLabel = UILabel()
@@ -52,21 +56,45 @@ class BookDetailViewController: UIViewController {
 
     // MARK: Setup
     private func setupViews() {
-        [backdropImageView, favoriteButton, posterImageView,
-         metaContainer, previewButton,
-         scrollView, contentView, descriptionLabel].forEach {
-            $0.translatesAutoresizingMaskIntoConstraints = false
-        }
+        [backdropImageView,
+         posterImageView,
+         metaContainer,
+         previewButton,
+         scrollView,
+         contentView,
+         descriptionLabel,
+         favoriteButton,
+         readLaterButton,
+         topButtonsStack
+        ].forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
 
         backdropImageView.contentMode = .scaleAspectFill
         backdropImageView.clipsToBounds = true
 
-        favoriteButton.setImage(UIImage(systemName: "heart"), for: .normal)
-        favoriteButton.tintColor = .white
-        favoriteButton.backgroundColor = UIColor.black.withAlphaComponent(0.4)
-        favoriteButton.layer.cornerRadius = 22
-        favoriteButton.clipsToBounds = true
+        // --- Buttons (top-right) ---
+        // Common style for both circle buttons
+        func styleTopIconButton(_ button: UIButton, systemName: String) {
+            button.setImage(UIImage(systemName: systemName), for: .normal)
+            button.tintColor = .white
+            button.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+            button.layer.cornerRadius = 22
+            button.clipsToBounds = true
+            button.widthAnchor.constraint(equalToConstant: 44).isActive = true
+            button.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        }
+
+        styleTopIconButton(favoriteButton, systemName: "heart")
         favoriteButton.addTarget(self, action: #selector(didTapFavorite), for: .touchUpInside)
+
+        styleTopIconButton(readLaterButton, systemName: "bookmark")
+        readLaterButton.addTarget(self, action: #selector(didTapReadLater), for: .touchUpInside)
+
+        topButtonsStack.axis = .horizontal
+        topButtonsStack.alignment = .fill
+        topButtonsStack.distribution = .fill
+        topButtonsStack.spacing = 8
+        topButtonsStack.addArrangedSubview(readLaterButton)  // ⬅️ Left
+        topButtonsStack.addArrangedSubview(favoriteButton)   // ⬅️ Right, close to Read Later
 
         posterImageView.layer.cornerRadius = 18
         posterImageView.layer.borderWidth = 2
@@ -100,7 +128,7 @@ class BookDetailViewController: UIViewController {
         descriptionLabel.numberOfLines = 0
 
         view.addSubview(backdropImageView)
-        view.addSubview(favoriteButton)
+        view.addSubview(topButtonsStack)
         view.addSubview(posterImageView)
         view.addSubview(metaContainer)
         view.addSubview(previewButton)
@@ -117,10 +145,9 @@ class BookDetailViewController: UIViewController {
             backdropImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             backdropImageView.heightAnchor.constraint(equalToConstant: 260),
 
-            favoriteButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            favoriteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            favoriteButton.widthAnchor.constraint(equalToConstant: 44),
-            favoriteButton.heightAnchor.constraint(equalToConstant: 44),
+            // Top-right buttons (Read Later on left, Favorite on right) with tight spacing
+            topButtonsStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            topButtonsStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
 
             posterImageView.topAnchor.constraint(equalTo: backdropImageView.bottomAnchor, constant: -50),
             posterImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
@@ -167,8 +194,14 @@ class BookDetailViewController: UIViewController {
             NukeExtensions.loadImage(with: url, into: backdropImageView)
         }
 
-        isFavorite = Book.getBooks(forKey: Book.favoritesKey).contains { $0.id == book.id }
+        // Initial state for Favorite / Read Later
+        let favorites = Book.getBooks(forKey: Book.favoritesKey)
+        isFavorite = favorites.contains { $0.id == book.id }
         updateFavoriteIcon()
+
+        let readLaterList = Book.getBooks(forKey: Book.readLaterKey)
+        isReadLater = readLaterList.contains { $0.id == book.id }
+        updateReadLaterIcon()
     }
 
     // MARK: - Actions
@@ -187,9 +220,29 @@ class BookDetailViewController: UIViewController {
         updateFavoriteIcon()
     }
 
+    @objc private func didTapReadLater() {
+        var readLater = Book.getBooks(forKey: Book.readLaterKey)
+
+        if let index = readLater.firstIndex(where: { $0.id == book.id }) {
+            readLater.remove(at: index)
+            isReadLater = false
+        } else {
+            readLater.append(book)
+            isReadLater = true
+        }
+
+        Book.save(readLater, forKey: Book.readLaterKey)
+        updateReadLaterIcon()
+    }
+
     private func updateFavoriteIcon() {
-        let image = UIImage(systemName: isFavorite ? "heart.fill" : "heart")
-        favoriteButton.setImage(image, for: .normal)
+        let imageName = isFavorite ? "heart.fill" : "heart"
+        favoriteButton.setImage(UIImage(systemName: imageName), for: .normal)
+    }
+
+    private func updateReadLaterIcon() {
+        let imageName = isReadLater ? "bookmark.fill" : "bookmark"
+        readLaterButton.setImage(UIImage(systemName: imageName), for: .normal)
     }
 
     @objc private func didTapPreview() {

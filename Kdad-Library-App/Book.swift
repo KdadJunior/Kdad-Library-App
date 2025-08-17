@@ -55,3 +55,10 @@ extension Book {
         return []
     }
 }
+
+extension Book {
+    static var readLaterKey: String {
+        return "ReadLaterBooks"
+    }
+}
+
