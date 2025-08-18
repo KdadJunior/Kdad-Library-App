@@ -1,96 +1,127 @@
-##  Kdad Library 📚
+# Kdad Library 📚
 
-##  Table of Contents
+## Table of Contents
+- [Overview](#overview)
+- [Product Spec](#product-spec)
+- [App Design Sketch](#app-design-sketch)
+- [Schema](#schema)
+- [Demo](#demo)
+- [License](#license)
 
-Overview
-Product Spec
-Wireframes
-Schema
+---
 
-##  Overview
+## Overview
 
-*Description*
-Kdad Library is a beautifully crafted iOS app that lets users browse, search, and view detailed information about popular books using the Google Books API. It features rich UI, a dynamic detail screen with a backdrop, metadata, and favoriting system, and a powerful search functionality to explore titles.
+**Kdad Library** is a beautifully crafted iOS app that lets users browse, search, and view detailed information about popular books using the **Google Books API**.  
 
-## https://www.loom.com/share/12440b6f376b4f789c2271c2ad66e3d1?sid=bfce1ec7-61fe-4079-85a3-f778b556aa42
+✨ Features:
+- Rich and modern UI design
+- Dynamic detail screen with backdrop and metadata
+- Favoriting system with heart icon feedback
+- Powerful search functionality for exploring titles
 
-*App Evaluation*
-Category: Books / Reference
-Mobile: iOS
-Story: Empowers users to discover and read more about trending books with an elegant user interface.
-Market: Readers, students, book lovers, and educators.
-Habit: Encourages daily usage by making book discovery simple and interactive.
-Scope: MVP includes browsing, viewing details, favoriting books, and searching. Future versions may support book previews or library syncing.
+📹 **Demo:**  
+[Watch on Loom](https://www.loom.com/share/12440b6f376b4f789c2271c2ad66e3d1?sid=bfce1ec7-61fe-4079-85a3-f778b556aa42)
 
-##  Product Spec
+---
 
-1. User Stories
-Must-Have
-Users can view a list of popular books.
-Users can tap a book to see its details.
-Users can favorite a book and see that reflected via a heart icon.
-Users can search books using a search bar.
+### App Evaluation
+- **Category:** Books / Reference  
+- **Platform:** iOS  
+- **Story:** Empowers users to discover and learn about trending books with an elegant interface.  
+- **Market:** Readers, students, book lovers, educators.  
+- **Habit:** Encourages daily usage by making book discovery simple and interactive.  
+- **Scope:**  
+  - MVP: Browsing, viewing details, favoriting books, and searching  
+  - Future: Book previews, persistent favorites, syncing with user libraries  
 
-Optional Nice-to-Have
-Persist favorited books across app launches.
-Show preview link to read a sample in browser.
-Swipe to unfavorite a book.
-Add categories or genres.
+---
 
-2. Screen Archetypes
-Book List Screen
-Display popular books in a scrollable list.
-Each cell shows the book's title, description, and thumbnail.
-Includes a search bar and header ("Kdad Library").
+## Product Spec
 
-Book Detail Screen
-Shows backdrop image, cover, metadata (title, author, release date).
-Allows favoriting/unfavoriting.
-Displays description.
-“Open Book” button links to preview.
+### 1. User Stories
 
-3. Navigation
-Flow Navigation
-Book List Screen
-↳ Tap on a book → Book Detail Screen
+**Must-Have**
+- Users can view a list of popular books  
+- Users can tap a book to see its details  
+- Users can favorite a book (heart icon)  
+- Users can search books with a search bar  
 
-Book Detail Screen
-↳ Tap back → Book List Screen
+**Nice-to-Have**
+- Persist favorited books across launches  
+- Show preview links to read samples in browser  
+- Swipe to unfavorite a book  
+- Browse by category or genre  
 
-##  App Design Sketch
+---
 
-Below is the hand-drawn wireframe of the app’s navigation and key screens:
+### 2. Screen Archetypes
+
+**📖 Book List Screen**
+- Scrollable list of popular books  
+- Each cell includes title, description, and thumbnail  
+- Header: *Kdad Library*  
+- Search bar at the top  
+
+**📘 Book Detail Screen**
+- Backdrop image + cover  
+- Metadata: title, author, release date  
+- Favorite / unfavorite toggle  
+- Description  
+- *Open Book* button → preview in browser  
+
+---
+
+### 3. Navigation
+
+- **Book List Screen** → Tap a book → **Book Detail Screen**  
+- **Book Detail Screen** → Back → **Book List Screen**  
+
+---
+
+## App Design Sketch
+
+Below is the wireframe of the app’s navigation and key screens:
 
 ![App Wireframe](https://i.ibb.co/SXyhjYh3/Cam-Scanner-08-12-2025-13-15-1.jpg)
 
-BONUS: Digital Mockups & Interactive Prototype
- Add Figma/XD mockups if available.
+*(Bonus: add Figma/XD mockups if available)*
 
-##  Schema
+---
 
-This section will be completed in Unit 9.
+## Schema
 
-Models
-Book
+### Models
 
-Property	Type	Description
+**Book**
+| Property       | Type     | Description                     |
+|----------------|----------|---------------------------------|
+| id             | String   | Unique ID of the book           |
+| title          | String   | Book title                      |
+| authors        | Array    | List of authors                 |
+| description    | String   | Book overview                   |
+| publishedDate  | String   | Release date                    |
+| imageLinks     | Object   | Thumbnail & backdrop images     |
+| previewLink    | String   | URL to preview the book         |
+| averageRating  | Float    | Optional rating                 |
 
-id	String	Unique ID of the book
+---
 
-title	String	Book title
+### Networking
 
-authors	Array	List of authors
+| Screen            | Request Type | Endpoint                                                                 | Description                     |
+|-------------------|--------------|-------------------------------------------------------------------------|---------------------------------|
+| Book List Screen  | GET          | `https://www.googleapis.com/books/v1/volumes?q=bestsellers`             | Fetch list of popular books     |
 
-description	String	Book overview
+---
 
-publishedDate	String	Release date
+## Demo
 
-imageLinks	Object	Thumbnail and backdrop images
+👉 [View Demo on Loom](https://www.loom.com/share/12440b6f376b4f789c2271c2ad66e3d1?sid=bfce1ec7-61fe-4079-85a3-f778b556aa42)
 
-previewLink	String	URL to preview the book
+---
 
-averageRating	Float	Optional rating
+## License
 
-Networking
-Screen	Request Type	Endpoint	Description
-Book List Screen	GET	https://www.googleapis.com/books/v1/volumes?q=bestsellers	Fetch list of popular books
+This project is licensed under the **MIT License**.  
+
