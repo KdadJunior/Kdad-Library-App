@@ -1,7 +1,12 @@
 # Kdad Library 📚
 
+![Swift](https://img.shields.io/badge/Swift-5.0-orange.svg)
+![Platform](https://img.shields.io/badge/platform-iOS-lightgrey.svg)
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+
 ## Table of Contents
 - [Overview](#overview)
+- [Features](#features)
 - [Product Spec](#product-spec)
 - [App Design Sketch](#app-design-sketch)
 - [Schema](#schema)
@@ -12,28 +17,48 @@
 
 ## Overview
 
-**Kdad Library** is a beautifully crafted iOS app that lets users browse, search, and view detailed information about popular books using the **Google Books API**.  
+**Kdad Library** is a beautifully crafted **iOS application built with UIKit programmatically**. It lets users browse, search, and view detailed information about popular books using the **Google Books API**.  
 
-✨ Features:
-- Rich and modern UI design
-- Dynamic detail screen with backdrop and metadata
-- Favoriting system with heart icon feedback
-- Powerful search functionality for exploring titles
+It features a **polished UI design**, interactive detail pages with metadata and backdrop images, a **favoriting system**, and theme customization with a **Theme Manager**.
 
 📹 **Demo:**  
 [Watch on Loom](https://www.loom.com/share/12440b6f376b4f789c2271c2ad66e3d1?sid=bfce1ec7-61fe-4079-85a3-f778b556aa42)
 
 ---
 
-### App Evaluation
-- **Category:** Books / Reference  
-- **Platform:** iOS  
-- **Story:** Empowers users to discover and learn about trending books with an elegant interface.  
-- **Market:** Readers, students, book lovers, educators.  
-- **Habit:** Encourages daily usage by making book discovery simple and interactive.  
-- **Scope:**  
-  - MVP: Browsing, viewing details, favoriting books, and searching  
-  - Future: Book previews, persistent favorites, syncing with user libraries  
+## Features
+
+- 📚 **Book List & Search**
+  - View trending and popular books
+  - Dynamic search functionality with live results
+  - Scrollable list with book cover, title, and description
+
+- 🖼️ **Book Detail View**
+  - Backdrop image and cover art
+  - Metadata (title, author, release date, rating)
+  - Description text
+  - *Open Book* button → preview in browser
+
+- ❤️ **Favoriting**
+  - Toggle heart icon to favorite/unfavorite books
+  - Persistent favorites across navigation
+  - (Future: persistence across launches)
+
+- 🎨 **Theme Manager**
+  - Built-in **dark mode / light mode** toggle
+  - Custom **deep vanilla light theme** with user preference saving
+  - Parallax and motion effects with “Reduce Motion” toggle
+
+- 🛠️ **UIKit Programmatic UI**
+  - No Storyboards — fully programmatic UIKit
+  - Auto Layout constraints
+  - Clean MVC architecture
+  - Navigation Controller with custom back button support
+
+- 🚀 **Performance & Polish**
+  - Smooth scrolling and optimized image loading with **Nuke**
+  - Professional app structure for App Store readiness
+  - Future support for categories, genres, and library sync
 
 ---
 
@@ -43,9 +68,9 @@
 
 **Must-Have**
 - Users can view a list of popular books  
-- Users can tap a book to see its details  
-- Users can favorite a book (heart icon)  
-- Users can search books with a search bar  
+- Users can search for books with a search bar  
+- Users can tap a book to see details  
+- Users can favorite/unfavorite books with a heart icon  
 
 **Nice-to-Have**
 - Persist favorited books across launches  
@@ -59,29 +84,28 @@
 
 **📖 Book List Screen**
 - Scrollable list of popular books  
-- Each cell includes title, description, and thumbnail  
 - Header: *Kdad Library*  
 - Search bar at the top  
 
 **📘 Book Detail Screen**
-- Backdrop image + cover  
-- Metadata: title, author, release date  
-- Favorite / unfavorite toggle  
+- Backdrop + cover image  
+- Title, author, release date, and rating  
 - Description  
-- *Open Book* button → preview in browser  
+- Favorite toggle (heart icon)  
+- *Open Book* → preview link  
 
 ---
 
 ### 3. Navigation
 
-- **Book List Screen** → Tap a book → **Book Detail Screen**  
+- **Book List Screen** → Tap book → **Book Detail Screen**  
 - **Book Detail Screen** → Back → **Book List Screen**  
 
 ---
 
 ## App Design Sketch
 
-Below is the wireframe of the app’s navigation and key screens:
+Hand-drawn wireframe of app navigation and key screens:
 
 ![App Wireframe](https://i.ibb.co/SXyhjYh3/Cam-Scanner-08-12-2025-13-15-1.jpg)
 
@@ -112,6 +136,7 @@ Below is the wireframe of the app’s navigation and key screens:
 | Screen            | Request Type | Endpoint                                                                 | Description                     |
 |-------------------|--------------|-------------------------------------------------------------------------|---------------------------------|
 | Book List Screen  | GET          | `https://www.googleapis.com/books/v1/volumes?q=bestsellers`             | Fetch list of popular books     |
+| Search Screen     | GET          | `https://www.googleapis.com/books/v1/volumes?q={query}`                 | Fetch search results            |
 
 ---
 
