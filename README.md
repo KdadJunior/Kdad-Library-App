@@ -131,15 +131,6 @@ Hand-drawn wireframe of app navigation and key screens:
 
 ---
 
-### Networking
-
-| Screen            | Request Type | Endpoint                                                                 | Description                     |
-|-------------------|--------------|-------------------------------------------------------------------------|---------------------------------|
-| Book List Screen  | GET          | `https://www.googleapis.com/books/v1/volumes?q=bestsellers`             | Fetch list of popular books     |
-| Search Screen     | GET          | `https://www.googleapis.com/books/v1/volumes?q={query}`                 | Fetch search results            |
-
----
-
 ## Demo
 
 👉 [View Demo on Loom](https://www.loom.com/share/12440b6f376b4f789c2271c2ad66e3d1?sid=bfce1ec7-61fe-4079-85a3-f778b556aa42)
