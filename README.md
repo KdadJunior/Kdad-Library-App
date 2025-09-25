@@ -22,7 +22,7 @@
 It features a **polished UI design**, interactive detail pages with metadata and backdrop images, a **favoriting system**, and theme customization with a **Theme Manager**.
 
 📹 **Demo:**  
-[Watch on Loom](https://www.loom.com/share/12440b6f376b4f789c2271c2ad66e3d1?sid=bfce1ec7-61fe-4079-85a3-f778b556aa42)
+[Watch on Loom](https://www.loom.com/share/d31b32acaba248f0b7a40c9e2536de9b?sid=3780a62e-bd29-485d-b362-6c297f6b2ba0)
 
 ---
 
@@ -133,7 +133,7 @@ Hand-drawn wireframe of app navigation and key screens:
 
 ## Demo
 
-👉 [View Demo on Loom]([https://www.loom.com/share/12440b6f376b4f789c2271c2ad66e3d1?sid=bfce1ec7-61fe-4079-85a3-f778b556aa42](https://www.loom.com/share/d31b32acaba248f0b7a40c9e2536de9b?sid=3780a62e-bd29-485d-b362-6c297f6b2ba0))
+👉 [View Demo on Loom](https://www.loom.com/share/d31b32acaba248f0b7a40c9e2536de9b?sid=3780a62e-bd29-485d-b362-6c297f6b2ba0)
 
 ---
 
